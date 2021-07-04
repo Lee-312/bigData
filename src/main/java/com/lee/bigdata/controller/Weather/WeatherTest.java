@@ -16,27 +16,26 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Maps;
-import com.lee.bigdata.model.CommonResult;
 
-@Controller
+@RestController
 @RequestMapping("/weather")
 public class WeatherTest {
 
 
     @GetMapping("/today")
-    public CommonResult getTodayWeather() {
+    public String getTodayWeather() {
         Map<String, String> map = Maps.newHashMap();
 
         SAXReader reader = new SAXReader();
         Document document = null;
         try {
-            document = reader.read(getReponse("http://wthrcdn.etouch.cn/WeatherApi?city=%E9%95%BF%E6%98%A5"));
+            document = reader.read(getReponse("http://wthrcdn.etouch.cn/WeatherApi?city=苏州"));
         } catch (DocumentException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -68,13 +67,13 @@ public class WeatherTest {
             Iterator zhishu = zhishusNode.elementIterator("zhishu");
             while (zhishu.hasNext()) {
                 Element zhishuNode = (Element) zhishu.next();
-                map.put("name", zhishuNode.elementTextTrim("name"));
-                map.put("value", zhishuNode.elementTextTrim("value"));
-                map.put("detail", zhishuNode.elementTextTrim("detail"));
+                String name = zhishuNode.elementTextTrim("name");
+                String value = zhishuNode.elementTextTrim("value");
+                String detail = zhishuNode.elementTextTrim("detail");
+                map.put(name, value + " : " + detail);
             }
         }
-
-        return new CommonResult(200, JSONArray.toJSONString(map));
+        return JSONArray.toJSONString(map);
     }
 
     public GZIPInputStream getReponse(String _url) throws ClientProtocolException, IOException {
